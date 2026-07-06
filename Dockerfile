@@ -4,11 +4,16 @@ RUN apk add --no-cache \
     ttyd \
     openssh-client \
     sshpass \
-    tmux
+    tmux \
+    nginx \
+    supervisor
 
 COPY entrypoint.sh /entrypoint.sh
+COPY toolbar.html /toolbar.html
+COPY nginx.conf /etc/nginx/http.d/default.conf
+COPY supervisord.conf /etc/supervisord.conf
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 7681
+EXPOSE 80
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

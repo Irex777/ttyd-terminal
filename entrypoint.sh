@@ -9,7 +9,7 @@ AUTH="${BASIC_AUTH:-anton:P6atriot6}"
 
 echo "[ttyd] Starting ttyd -> ${SSH_USER}@${SSH_HOST}:${SSH_PORT}"
 
-exec ttyd -p 7681 -W -c "$AUTH" \
+ttyd -i 127.0.0.1 -p 7681 -W -c "$AUTH" \
     sshpass -p "$SSH_PASS" ssh -t -p "$SSH_PORT" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
