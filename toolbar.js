@@ -2,21 +2,18 @@
   if(window.__mtbInit)return;window.__mtbInit=true;
 
   // --- Mobile font size boost ---
-  // High-DPI mobile screens make xterm's default 14px font look tiny.
-  // Detect mobile and inject CSS to boost terminal font size.
-  var isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  if(isMobile) {
-    // Create a <style> tag to override xterm.js font size on mobile
-    var style = document.createElement('style');
-    style.textContent = [
-      '@media screen and (max-width: 768px) {',
-      '  .terminal { font-size: 18px !important; }',
-      '  .xterm { font-size: 18px !important; }',
-      '  .xterm-viewport { font-size: 18px !important; }',
-      '}'
-    ].join('\n');
-    document.head.appendChild(style);
+  // xterm.js controls font size via JS, not CSS. Must use setOption().
+  function applyMobileFontSize(){
+    var t = window.term || (window.TTYD && window.TTYD.term);
+    if(!t || typeof t.setOption !== 'function') return;
+    var isMobile = window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
+    var size = isMobile ? 18 : 14;
+    try { t.setOption('fontSize', size); } catch(e) {}
   }
+  // Apply on load and resize
+  setTimeout(applyMobileFontSize, 500);
+  setTimeout(applyMobileFontSize, 1500);
+  window.addEventListener('resize', applyMobileFontSize);
 
   function createToolbar(){
     if(document.getElementById('mtb'))return;
