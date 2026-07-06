@@ -1,9 +1,11 @@
-FROM tsl0922/ttyd:latest
+FROM alpine:latest
 
-# Install openssh-client for SSH to the relay
-RUN apk add --no-cache openssh-client tmux
+RUN apk add --no-cache \
+    ttyd \
+    openssh-client \
+    tmux \
+    shadow
 
-# Copy entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
