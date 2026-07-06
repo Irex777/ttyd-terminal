@@ -6,8 +6,7 @@ RUN apk add --no-cache \
     sshpass \
     tmux \
     nginx \
-    supervisor \
-    python3
+    supervisor
 
 COPY entrypoint.sh /entrypoint.sh
 COPY toolbar.js /toolbar.js
@@ -16,6 +15,4 @@ COPY supervisord.conf /etc/supervisord.conf
 COPY init.sh /init.sh
 RUN chmod +x /entrypoint.sh /init.sh
 
-# Do the toolbar JS inlining BEFORE starting supervisor
-# This ensures nginx sees the correct config from the start
 ENTRYPOINT ["/init.sh"]
