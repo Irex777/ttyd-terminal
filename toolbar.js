@@ -1,6 +1,34 @@
 (function(){
   if(window.__mtbInit)return;window.__mtbInit=true;
 
+  // --- Mobile font size boost ---
+  // ttyd/xterm.js default font is tiny on high-DPI phones. Detect mobile,
+  // bump the terminal font size, and re-fit the terminal.
+  var isMobile = (window.innerWidth < 768) || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var targetFontSize = isMobile ? 16 : 14;
+
+  function applyFontSize() {
+    // ttyd stores the Terminal instance in window.term
+    // Also try Terminal global / ttyd internal
+    var t = window.term || (window.TTYD && window.TTYD.term);
+    if (t && typeof t.setOption === 'function') {
+      try {
+        var cur = t.getOption('fontSize');
+        if (cur !== targetFontSize) {
+          t.setOption('fontSize', targetFontSize);
+          // Re-fit the terminal to recalculate rows/cols
+          if (window.fitAddon || (t._addon && t._addon.fit)) {
+            var fa = window.fitAddon || t._addon;
+            if (typeof fa.fit === 'function') fa.fit();
+          }
+        }
+      } catch(e) {}
+    }
+  }
+
+  // Retry a few times — ttyd's React takes a moment to create the terminal
+  [100, 500, 1500, 3000].forEach(function(ms){ setTimeout(applyFontSize, ms); });
+
   function createToolbar(){
     if(document.getElementById('mtb'))return;
 
