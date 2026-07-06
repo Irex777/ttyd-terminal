@@ -3,8 +3,8 @@ FROM alpine:latest
 RUN apk add --no-cache \
     ttyd \
     openssh-client \
-    tmux \
-    shadow
+    sshpass \
+    tmux
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
