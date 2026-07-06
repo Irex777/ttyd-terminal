@@ -6,7 +6,8 @@ RUN apk add --no-cache \
     sshpass \
     tmux \
     nginx \
-    supervisor
+    supervisor \
+    python3
 
 COPY entrypoint.sh /entrypoint.sh
 COPY toolbar.js /toolbar.js
