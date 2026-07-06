@@ -24,5 +24,8 @@ NGINX
 # Start nginx in background
 nginx
 
-# Start ttyd with SSH connection
-ttyd -W --no-auth -c sshpass ssh -o StrictHostKeyChecking=no aboy@192.168.64.1 -p 2222
+# Start ttyd in background (SSH connection)
+ttyd -W --no-auth -c sshpass ssh -o StrictHostKeyChecking=no aboy@192.168.64.1 -p 2222 &
+
+# Keep container running
+wait
