@@ -2,32 +2,21 @@
   if(window.__mtbInit)return;window.__mtbInit=true;
 
   // --- Mobile font size boost ---
-  // ttyd/xterm.js default font is tiny on high-DPI phones. Detect mobile,
-  // bump the terminal font size, and re-fit the terminal.
-  var isMobile = (window.innerWidth < 768) || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  var targetFontSize = isMobile ? 16 : 14;
-
-  function applyFontSize() {
-    // ttyd stores the Terminal instance in window.term
-    // Also try Terminal global / ttyd internal
-    var t = window.term || (window.TTYD && window.TTYD.term);
-    if (t && typeof t.setOption === 'function') {
-      try {
-        var cur = t.getOption('fontSize');
-        if (cur !== targetFontSize) {
-          t.setOption('fontSize', targetFontSize);
-          // Re-fit the terminal to recalculate rows/cols
-          if (window.fitAddon || (t._addon && t._addon.fit)) {
-            var fa = window.fitAddon || t._addon;
-            if (typeof fa.fit === 'function') fa.fit();
-          }
-        }
-      } catch(e) {}
-    }
+  // High-DPI mobile screens make xterm's default 14px font look tiny.
+  // Detect mobile and inject CSS to boost terminal font size.
+  var isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  if(isMobile) {
+    // Create a <style> tag to override xterm.js font size on mobile
+    var style = document.createElement('style');
+    style.textContent = [
+      '@media screen and (max-width: 768px) {',
+      '  .terminal { font-size: 18px !important; }',
+      '  .xterm { font-size: 18px !important; }',
+      '  .xterm-viewport { font-size: 18px !important; }',
+      '}'
+    ].join('\n');
+    document.head.appendChild(style);
   }
-
-  // Retry a few times — ttyd's React takes a moment to create the terminal
-  [100, 500, 1500, 3000].forEach(function(ms){ setTimeout(applyFontSize, ms); });
 
   function createToolbar(){
     if(document.getElementById('mtb'))return;
@@ -48,12 +37,12 @@
     function send(d){try{if(window.term&&window.term.paste)window.term.paste(d);}catch(e){}}
     function flash(b){var o=b.style.background,c=b.style.color;b.style.background='#e94560';b.style.color='#fff';setTimeout(function(){b.style.background=o;b.style.color=c;},150);}
 
-    var escSeq={escape:'\x1b',tab:'\t',arrowup:'\x1b[A',arrowdown:'\x1b[B',arrowright:'\x1b[C',arrowleft:'\x1b[D'};
-    var ctrlSeq={c:'\x03',z:'\x1a',d:'\x04',l:'\x0c',r:'\x12',w:'\x17',a:'\x01',e:'\x05',u:'\x15',k:'\x0b'};
+    var escSeq={escape:'\\x1b',tab:'\\t',arrowup:'\\x1b[A',arrowdown:'\\x1b[B',arrowright:'\\x1b[C',arrowleft:'\\x1b[D'};
+    var ctrlSeq={c:'\\x03',z:'\\x1a',d:'\\x04',l:'\\x0c',r:'\\x12',w:'\\x17',a:'\\x01',e:'\\x05',u:'\\x15',k:'\\x0b'};
 
     // Toggle button (show/hide toolbar)
     var toggle=document.createElement('button');
-    toggle.textContent='\u25BC';
+    toggle.textContent='\\u25BC';
     toggle.style.cssText='position:fixed;bottom:0;right:0;width:32px;height:28px;background:#0f3460;color:#e94560;border:1px solid #333;border-radius:5px 0 0 0;font-size:12px;z-index:1000000;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;';
 
     var r1=document.createElement('div');
@@ -79,11 +68,11 @@
     r1.appendChild(ab);
 
     ['arrowup','arrowdown','arrowleft','arrowright'].forEach(function(k){
-      var icons={arrowup:'\u2191',arrowdown:'\u2193',arrowleft:'\u2190',arrowright:'\u2192'};
+      var icons={arrowup:'\\u2191',arrowdown:'\\u2193',arrowleft:'\\u2190',arrowright:'\\u2192'};
       var b=mk(icons[k],function(btn){
         var d=escSeq[k];
-        if(mod==='ctrl'){var cm={arrowup:'\x1b[1;5A',arrowdown:'\x1b[1;5B',arrowright:'\x1b[1;5C',arrowleft:'\x1b[1;5D'};d=cm[k];mod=null;cb.style.background='#0f3460';cb.style.color='#e94560';}
-        else if(mod==='alt'){var am={arrowup:'\x1b[1;3A',arrowdown:'\x1b[1;3B',arrowright:'\x1b[1;3C',arrowleft:'\x1b[1;3D'};d=am[k];mod=null;ab.style.background='#0f3460';ab.style.color='#e94560';}
+        if(mod==='ctrl'){var cm={arrowup:'\\x1b[1;5A',arrowdown:'\\x1b[1;5B',arrowright:'\\x1b[1;5C',arrowleft:'\\x1b[1;5D'};d=cm[k];mod=null;cb.style.background='#0f3460';cb.style.color='#e94560';}
+        else if(mod==='alt'){var am={arrowup:'\\x1b[1;3A',arrowdown:'\\x1b[1;3B',arrowright:'\\x1b[1;3C',arrowleft:'\\x1b[1;3D'};d=am[k];mod=null;ab.style.background='#0f3460';ab.style.color='#e94560';}
         send(d);flash(btn);
       });
       b.style.fontSize='15px';
@@ -91,7 +80,7 @@
     });
 
     Object.keys(ctrlSeq).forEach(function(k){
-      r2.appendChild(mk('\u2303'+k.toUpperCase(),function(b){send(ctrlSeq[k]);flash(b);},'background:#0f3460;color:#e94560;'));
+      r2.appendChild(mk('\\u2303'+k.toUpperCase(),function(b){send(ctrlSeq[k]);flash(b);},'background:#0f3460;color:#e94560;'));
     });
     r2.appendChild(mk('~',function(b){send('~');flash(b);}));
     r2.appendChild(mk('|',function(b){send('|');flash(b);}));
@@ -103,8 +92,8 @@
 
     toggle.addEventListener('click',function(e){
       e.preventDefault();e.stopPropagation();
-      if(tb.style.display==='none'){tb.style.display='block';toggle.textContent='\u25BC';}
-      else{tb.style.display='none';toggle.textContent='\u25B2';}
+      if(tb.style.display==='none'){tb.style.display='block';toggle.textContent='\\u25BC';}
+      else{tb.style.display='none';toggle.textContent='\\u25B2';}
       toggle.blur();
     });
 
