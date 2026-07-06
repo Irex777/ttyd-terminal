@@ -1,16 +1,18 @@
-# ttyd web terminal
-FROM alpine:3.17
+FROM alpine:latest
 
 RUN apk add --no-cache \
-    ttyd sshpass tmux bash
+    ttyd \
+    openssh-client \
+    sshpass \
+    tmux \
+    nginx \
+    supervisor
 
-# Copy scripts
+COPY entrypoint.sh /entrypoint.sh
+COPY toolbar.js /toolbar.js
+COPY nginx.conf /etc/nginx/http.d/default.conf
+COPY supervisord.conf /etc/supervisord.conf
 COPY init.sh /init.sh
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY toolbar.js /usr/share/nginx/html/toolbar.js
+RUN chmod +x /entrypoint.sh /init.sh
 
-# Make scripts executable
-RUN chmod +x /init.sh
-
-EXPOSE 80
-CMD ["/init.sh"]
+ENTRYPOINT ["/init.sh"]
