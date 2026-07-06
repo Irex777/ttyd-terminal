@@ -7,7 +7,7 @@
     var t = window.term || (window.TTYD && window.TTYD.term);
     if(!t || typeof t.setOption !== 'function') return;
     var isMobile = window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
-    var size = isMobile ? 18 : 14;
+    var size = isMobile ? 24 : 14;
     try { t.setOption('fontSize', size); } catch(e) {}
   }
   // Apply on load and resize
