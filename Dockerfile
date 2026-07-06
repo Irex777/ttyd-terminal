@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     supervisor
 
 COPY entrypoint.sh /entrypoint.sh
-COPY toolbar.html /toolbar.html
+COPY toolbar.js /toolbar.js
 COPY nginx.conf /etc/nginx/http.d/default.conf
 COPY supervisord.conf /etc/supervisord.conf
 RUN chmod +x /entrypoint.sh
